@@ -1,3 +1,5 @@
+# coding=utf-8
+from core.colors import green, yellow, red, bold
 from core.weexceptions import FatalException, ChannelException
 from core.loggers import log, dlog
 from core import messages
@@ -5,7 +7,6 @@ from core import modules
 from core import config
 from core.module import Status
 import utils
-from mako import template
 import readline
 import cmd
 import glob
@@ -131,7 +132,7 @@ class Terminal(CmdModules):
         cmd.Cmd.__init__(self)
 
         self.session = session
-        self.prompt = 'weevely> '
+        self.prompt = green('➜ ')
 
         # Load all available modules
         self._load_modules()
@@ -140,14 +141,7 @@ class Terminal(CmdModules):
         self._load_history()
 
         # Set a nice intro
-        self.intro = template.Template(
-            messages.terminal.welcome_to_s
-        ).render(
-            path = self.session.get('path'),
-            conn_info = session.get_connection_info(),
-            version = messages.version,
-            default_shell = self.session.get('default_shell')
-        )
+        self.intro = messages.welcome(self.session)
 
         # Set default encoding utf8
         reload(sys)
@@ -236,7 +230,7 @@ class Terminal(CmdModules):
         default_shell = self.session.get('default_shell')
 
         if not default_shell:
-            self.prompt = 'weevely> '
+            self.prompt = green('➜ ')
         else:
             if default_shell == 'shell_sh':
                 prompt = '$'
@@ -246,7 +240,15 @@ class Terminal(CmdModules):
                 prompt = '?'
 
             # Build next prompt, last command could have changed the cwd
-            self.prompt = '%s %s ' % (self.session.get_connection_info(), prompt)
+            cinfo = self.session.get_connection_info()
+            left, right = cinfo.split(":", 1)
+            left_spl = left.split("@", 1)
+            usr = left_spl[0]
+            host = left_spl[1]
+
+            self.prompt = "[%s@%s %s ]%s " % (
+                bold(usr), bold(red(host)), green(right), prompt
+            )
 
 
     def default(self, line):
