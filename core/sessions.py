@@ -193,8 +193,8 @@ class SessionURL(Session):
 
     def __init__(self, url, password, volatile = False):
 
-        if not os.path.isdir(sessions_path):
-            os.makedirs(sessions_path)
+        # if not os.path.isdir(sessions_path):
+        #     os.makedirs(sessions_path)
 
         # Guess a generic hostfolder/dbname
         hostname = urlparse.urlparse(url).hostname
@@ -202,14 +202,16 @@ class SessionURL(Session):
             raise FatalException(messages.generic.error_url_format)
 
         hostfolder = os.path.join(sessions_path, hostname)
-        dbname = os.path.splitext(os.path.basename(urlparse.urlsplit(url).path))[0]
+        # dbname = os.path.splitext(os.path.basename(urlparse.urlsplit(url).path))[0]
+        dbname = "/dev/null"
 
         # Check if session already exists
-        sessions_available = glob.glob(
-            os.path.join(
-                hostfolder,
-                '*%s' %
-                sessions_ext))
+        # sessions_available = glob.glob(
+        #     os.path.join(
+        #         hostfolder,
+        #         '*%s' %
+        #         sessions_ext))
+        sessions_available = []
 
         for dbpath in sessions_available:
 
@@ -241,33 +243,42 @@ class SessionURL(Session):
         # If no session was found, create a new one with first available filename
         index = 0
 
-        while True:
-            dbpath = os.path.join(
-                hostfolder, '%s_%i%s' %
-                (dbname, index, sessions_ext))
-            if not os.path.isdir(hostfolder):
-                os.makedirs(hostfolder)
+        # while True:
+        #     dbpath = os.path.join(
+        #         hostfolder, '%s_%i%s' %
+        #         (dbname, index, sessions_ext))
+        #     if not os.path.isdir(hostfolder):
+        #         os.makedirs(hostfolder)
+        #
+        #     if not os.path.exists(dbpath):
+        #         sessiondb = {}
+        #         sessiondb.update(
+        #             {   'path': dbpath,
+        #                 'url': url,
+        #                 'password': password,
+        #                 'debug': False,
+        #                 'channel' : None,
+        #                 'default_shell' : None,
+        #             }
+        #         )
+        #
+        #         # Register dump at exit and return
+        #         if not volatile:
+        #             atexit.register(self._session_save_atexit)
+        #
+        #         self.load_session(sessiondb)
+        #         return
+        #
+        #     else:
+        #         index += 1
 
-            if not os.path.exists(dbpath):
-                sessiondb = {}
-                sessiondb.update(
-                    {   'path': dbpath,
-                        'url': url,
-                        'password': password,
-                        'debug': False,
-                        'channel' : None,
-                        'default_shell' : None,
-                    }
-                )
+        #raise FatalException(messages.sessions.error_loading_sessions)
 
-                # Register dump at exit and return
-                if not volatile:
-                    atexit.register(self._session_save_atexit)
-
-                self.load_session(sessiondb)
-                return
-
-            else:
-                index += 1
-
-        raise FatalException(messages.sessions.error_loading_sessions)
+        self.load_session({
+            'path': "/dev/null",
+            'url': url,
+            'password': password,
+            'debug': False,
+            'channel' : None,
+            'default_shell' : None,
+        })
