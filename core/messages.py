@@ -1,4 +1,43 @@
+from mako import template
+from core.banner import logo
+from core.colors import red, magenta, yellow, green
+
 version = '3.4'
+
+
+def nice_msg(msg, err=False):
+    return yellow("[+] ") + msg
+
+
+def check_our_ip():
+    import requests
+    import utils
+    import random
+    agent = random.choice(utils.http.load_all_agents())
+    try:
+        resp = requests.get("http://icanhazip.com", headers={"User-Agent": agent})
+        resp.raise_for_status()
+        content = resp.content
+        if "cloudflare" in content.lower():
+            return green("Blocked by cloudflare (probably TOR)")
+        return content.strip().replace("\n", "")[:40]
+    except:
+        return red("couldnt get ip")
+
+
+def welcome(session):
+    msg = ""
+    msg += logo(str(version))
+    msg += "\n\n"
+    # msg += nice_msg("""Me:\t%s\n""" % check_our_ip())
+    msg += nice_msg("""Remote:\t%s\n""" % session["url"].replace("http", "hxxp"))
+    if session.get('default_shell'):
+        nice_msg("""Shell:\t%s""" % 'System shell' if session.get('default_shell') == 'shell_sh' else 'PHP interpreter')
+    msg += "\n"
+    msg += "Will connect on command - CTRL-C to exit weevely; not CTRL-D"
+
+    return msg
+
 
 class generic:
     file_s_not_found = "File '%s' not found"
@@ -8,7 +47,6 @@ class generic:
     error_url_format = 'Expected URL format \'http(s)://host/agent.php\''
     error_parsing_command_s = 'Error parsing command: %s'
     weevely_s_error_s_usage = """
-[+] weevely %s
 [!] Error: %s
 
 [+] Run terminal to the target
@@ -57,18 +95,7 @@ command replacements to simulate an unrestricted shell.
 The system shell interpreter is not available in this session, use the
 following command replacements to simulate a unrestricted shell.
 """
-    welcome_to_s = """
-[+] weevely ${version}
-
-[+] Target:\t${conn_info}
-[+] Session:\t${path}
-% if default_shell:
-[+] Shell:\t${ 'System shell' if default_shell == 'shell_sh' else 'PHP interpreter'}
-% endif
-
-[+] Browse the filesystem or execute commands starts the connection
-[+] to the target. Type :help for more information.
-"""
+    welcome_to_s = welcome
     set_usage = 'Set session variable (run :show to print). Usage:\n:set <variable> \'<value>\''
     unset_usage = 'Unset session variable (run :show to print). Usage:\n:unset <variable>'
 
