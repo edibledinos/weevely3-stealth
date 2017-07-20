@@ -23,13 +23,14 @@ class WeevelyFormatter(logging.Formatter):
         return logging.Formatter.format(self, record)
 
 
-if not os.path.isdir(core.config.base_path):
-    os.makedirs(core.config.base_path)
+# if not os.path.isdir(core.config.base_path):
+#     os.makedirs(core.config.base_path)
 
 """Initialize the handler to dump log to files"""
 log_path = os.path.join(core.config.base_path, 'weevely.log')
+# file_handler=open("/dev/null", "w")
 file_handler = logging.handlers.RotatingFileHandler(
-    log_path,
+    "/dev/null",
     mode='a',
     maxBytes=5*1024*1024,
     backupCount=2,
