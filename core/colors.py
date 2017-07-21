@@ -2,6 +2,23 @@ import os
 import sys
 
 
+def surround_ansi_escapes(prompt, start="\x01", end="\x02"):
+    escaped = False
+    result = ""
+
+    for c in prompt:
+        if c == "\x1b" and not escaped:
+            result += start + c
+            escaped = True
+        elif c.isalpha() and escaped:
+            result += c + end
+            escaped = False
+        else:
+            result += c
+
+    return result
+
+
 def color(text, color_code):
     """Colorize text.
     @param text: text.

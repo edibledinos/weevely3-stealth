@@ -8,7 +8,7 @@ from core import config
 from core.module import Status
 import utils
 import readline
-import cmd
+import core.cmd as cmd
 import glob
 import os
 import shlex
@@ -132,7 +132,7 @@ class Terminal(CmdModules):
         cmd.Cmd.__init__(self)
 
         self.session = session
-        self.prompt = green('➜ ')
+        self.prompt = green('$ ')
 
         # Load all available modules
         self._load_modules()
@@ -230,7 +230,7 @@ class Terminal(CmdModules):
         default_shell = self.session.get('default_shell')
 
         if not default_shell:
-            self.prompt = green('➜ ')
+            self.prompt = green('$ ')
         else:
             if default_shell == 'shell_sh':
                 prompt = '$'
